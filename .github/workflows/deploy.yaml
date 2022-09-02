@@ -1,0 +1,20 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: action/checkout@v3
+      - name: Deploy to Heroku
+        uses: AkhileshNS/Heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_DEPLOY_KEY }}
+          heroku_email: ohtjqkd@gmail.com
+          heroku_app_name: fc-mysns
