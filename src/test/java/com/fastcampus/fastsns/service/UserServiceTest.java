@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.swing.text.html.Option;
 import java.util.Optional;
@@ -27,6 +28,9 @@ public class UserServiceTest {
     @MockBean
     private UserEntityRepository userEntityRepository;
 
+    @MockBean
+    private BCryptPasswordEncoder encoder;
+
     @Test
     void 회원가입_정상작동() throws Exception {
         //given
@@ -35,6 +39,7 @@ public class UserServiceTest {
         UserEntity fixture = UserEntityFixture.get(userName, password);
         //when
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.empty());
+        when(encoder.encode(password)).thenReturn("encrypt_password");
         when(userEntityRepository.save(any())).thenReturn(Optional.of(UserEntityFixture.get(userName, password)));
 
         //then
@@ -48,7 +53,8 @@ public class UserServiceTest {
 
         UserEntity fixture = UserEntityFixture.get(userName, password);
         //when
-        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture ));
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
+        when(encoder.encode(password)).thenReturn("encrypt_password");
         when(userEntityRepository.save(any())).thenReturn(Optional.of(fixture));
 
         //then

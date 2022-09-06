@@ -2,6 +2,7 @@ package com.fastcampus.fastsns.controller;
 
 import com.fastcampus.fastsns.controller.request.UserJoinRequest;
 import com.fastcampus.fastsns.controller.request.UserLoginRequest;
+import com.fastcampus.fastsns.exception.ErrorCode;
 import com.fastcampus.fastsns.exception.FastSnsApplicationException;
 import com.fastcampus.fastsns.model.User;
 import com.fastcampus.fastsns.service.UserService;
@@ -91,7 +92,7 @@ public class UserControllerTest {
 
         String userName = "userName";
         String password = "password";
-        when(userService.login(userName, password)).thenThrow(new FastSnsApplicationException());
+        when(userService.login(userName, password)).thenThrow(new FastSnsApplicationException(ErrorCode.USER_NOT_FOUND, ""));
 
         mockMvc.perform(post("/api/v1/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -106,7 +107,7 @@ public class UserControllerTest {
 
         String userName = "userName";
         String password = "password";
-        when(userService.login(userName, password)).thenThrow(new FastSnsApplicationException());
+        when(userService.login(userName, password)).thenThrow(new FastSnsApplicationException(ErrorCode.INVALID_PASSWORD));
 
         mockMvc.perform(post("/api/v1/users/login")
                 .contentType(MediaType.APPLICATION_JSON)

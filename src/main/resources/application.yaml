@@ -1,0 +1,26 @@
+spring:
+  jpa:
+    database: postgresql
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        hbm2ddl:
+          auto: create
+
+  datasource:
+    url: jdbc:${DATABASE_JURL}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 4
+      username: ${DATABASE_USER_NAME}
+      password: ${DATABASE_PASSWORD}
+  sql:
+    init:
+      platform: postgres
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  token:
+    expired-time-ms: ${JWT_EXPIRED_TIME_MS}
