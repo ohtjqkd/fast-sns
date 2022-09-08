@@ -44,4 +44,9 @@ public class UserService {
         String token = JwtTokenUtils.generateToken(userName, secretKey, Long.parseLong(expiredTimeMs));
         return token;
     }
+
+    public User loadUserByUserName(String userName) {
+        return userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(() ->
+                new FastSnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
+    }
 }
