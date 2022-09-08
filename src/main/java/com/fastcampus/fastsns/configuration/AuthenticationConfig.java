@@ -19,7 +19,7 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
     private final UserService userService;
 
     @Value("${jwt.secret-key}")
-    private final String key;
+    private String key;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
