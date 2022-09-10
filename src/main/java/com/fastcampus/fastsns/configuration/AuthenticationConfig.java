@@ -1,6 +1,7 @@
 package com.fastcampus.fastsns.configuration;
 
 import com.fastcampus.fastsns.configuration.filter.JwtTokenFilter;
+import com.fastcampus.fastsns.exception.CustomAuthenticationEntryPoint;
 import com.fastcampus.fastsns.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
-
     @Value("${jwt.secret-key}")
     private String key;
     @Override
@@ -32,6 +32,8 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling()
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint());
     }
 }
