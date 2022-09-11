@@ -32,13 +32,13 @@ public class JwtTokenUtils {
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() * expiredTimeMs))
+                .setExpiration(new Date(System.currentTimeMillis() + expiredTimeMs))
                 .signWith(getKey(key), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     private static Key getKey(String key) {
-        byte[] keyBytes =key.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
