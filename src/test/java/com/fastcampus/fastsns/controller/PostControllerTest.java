@@ -1,7 +1,10 @@
 package com.fastcampus.fastsns.controller;
 
 import com.fastcampus.fastsns.controller.request.PostCreateRequest;
+import com.fastcampus.fastsns.controller.request.PostModifyRequest;
 import com.fastcampus.fastsns.controller.request.UserJoinRequest;
+import com.fastcampus.fastsns.exception.ErrorCode;
+import com.fastcampus.fastsns.exception.FastSnsApplicationException;
 import com.fastcampus.fastsns.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -15,6 +18,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -67,4 +73,60 @@ public class PostControllerTest {
         //then
     }
 
+    @Test
+    @WithMockUser
+    public void 포스트수정() throws Exception {
+        String title = "title";
+        String body = "body";
+
+        mockMvc.perform(post("/api/v1/posts/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void 포스트수정시_로그인x() throws Exception {
+        String title = "title";
+        String body = "body";
+
+        mockMvc.perform(post("/api/v1/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    public void 포스트수정시_권한x() throws Exception {
+        String title = "title";
+        String body = "body";
+        doThrow(new FastSnsApplicationException(ErrorCode.INVALID_PERMISSION)).when(postService).modify(eq(title), eq(body), any(), eq(1));
+
+        // TODO
+
+        mockMvc.perform(post("/api/v1/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    public void 포스트수정시_게시물x() throws Exception {
+        String title = "title";
+        String body = "body";
+
+        // TODO
+        doThrow(new FastSnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).modify(eq(title), eq(body), any(), eq(1));
+        mockMvc.perform(post("/api/v1/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
 }

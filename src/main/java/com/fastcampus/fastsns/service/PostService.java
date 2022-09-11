@@ -2,6 +2,7 @@ package com.fastcampus.fastsns.service;
 
 import com.fastcampus.fastsns.exception.ErrorCode;
 import com.fastcampus.fastsns.exception.FastSnsApplicationException;
+import com.fastcampus.fastsns.model.Post;
 import com.fastcampus.fastsns.model.entity.PostEntity;
 import com.fastcampus.fastsns.model.entity.UserEntity;
 import com.fastcampus.fastsns.repository.PostEntityRepository;
@@ -23,5 +24,23 @@ public class PostService {
                 new FastSnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
 
         postEntityRepository.save(PostEntity.of(title, body, userEntity));
+    }
+
+    @Transactional
+    public Post modify(String title, String body, String userName, Integer postId) {
+        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() ->
+                new FastSnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
+
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() ->
+            new FastSnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("%s not founded", postId)));
+
+        if (postEntity.getUser() != userEntity) {
+            throw new FastSnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userName, postId));
+        }
+
+        postEntity.setTitle(title);
+        postEntity.setBody(body);
+
+        return Post.fromEntity(postEntityRepository.save(postEntity));
     }
 }
