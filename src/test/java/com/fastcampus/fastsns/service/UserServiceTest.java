@@ -3,6 +3,7 @@ package com.fastcampus.fastsns.service;
 import com.fastcampus.fastsns.FastSnsApplication;
 import com.fastcampus.fastsns.exception.FastSnsApplicationException;
 import com.fastcampus.fastsns.fixture.UserEntityFixture;
+import com.fastcampus.fastsns.model.User;
 import com.fastcampus.fastsns.model.entity.UserEntity;
 import com.fastcampus.fastsns.repository.UserEntityRepository;
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -38,11 +38,11 @@ public class UserServiceTest {
         //given
         String userName = "userName";
         String password = "password";
-        UserEntity fixture = UserEntityFixture.get(userName, password, 1);
+
         //when
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.empty());
         when(encoder.encode(password)).thenReturn("encrypt_password");
-        when(userEntityRepository.save(any())).thenReturn(Optional.of(UserEntityFixture.get(userName, password, 1)));
+        when(userEntityRepository.save(any())).thenReturn(UserEntityFixture.get(userName, password, 1));
 
         //then
         Assertions.assertDoesNotThrow(() -> userService.join(userName, password));
@@ -73,6 +73,7 @@ public class UserServiceTest {
 
         //when
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
+        when(encoder.matches(password, fixture.getPassword())).thenReturn(true);
 
         //then
         Assertions.assertDoesNotThrow(() -> userService.login(userName, password));

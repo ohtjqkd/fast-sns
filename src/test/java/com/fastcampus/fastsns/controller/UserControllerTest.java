@@ -4,6 +4,7 @@ import com.fastcampus.fastsns.controller.request.UserJoinRequest;
 import com.fastcampus.fastsns.controller.request.UserLoginRequest;
 import com.fastcampus.fastsns.exception.ErrorCode;
 import com.fastcampus.fastsns.exception.FastSnsApplicationException;
+import com.fastcampus.fastsns.fixture.UserEntityFixture;
 import com.fastcampus.fastsns.model.User;
 import com.fastcampus.fastsns.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,11 +46,10 @@ public class UserControllerTest {
 
         when(userService.join(userName, password)).thenReturn(mock(User.class));
         mockMvc.perform(post("/api/v1/users/join")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
-        )
-        .andDo(print())
-        .andExpect(status().isOk());
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password))))
+                .andDo(print())
+                .andExpect(status().isOk());
         //when
 
         //then
@@ -62,12 +62,11 @@ public class UserControllerTest {
         String userName = "userName";
         String password = "password";
 
-        when(userService.join(userName, password)).thenReturn(mock(User.class));
+        when(userService.join(userName, password)).thenThrow(new FastSnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, ""));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
-                )
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password))))
                 .andDo(print())
                 .andExpect(status().isConflict());
         //when

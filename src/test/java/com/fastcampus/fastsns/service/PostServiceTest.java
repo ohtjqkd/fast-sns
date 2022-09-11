@@ -72,6 +72,7 @@ public class PostServiceTest {
         //when
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(postEntityFixture.getUser()));
         when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntityFixture));
+        when(postEntityRepository.saveAndFlush(any())).thenReturn(postEntityFixture);
 
         //then
         Assertions.assertDoesNotThrow(() -> postService.modify(title, body, userName, postId));
@@ -106,7 +107,7 @@ public class PostServiceTest {
         UserEntity writer = UserEntityFixture.get("userName1", "password", 2);
         //when
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(writer));
-        when(postEntityRepository.findById(postId)).thenReturn(Optional.empty());
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntityFixture));
 
         //then
         FastSnsApplicationException e = Assertions.assertThrows(FastSnsApplicationException.class, () -> postService.modify(title, body, userName, postId));

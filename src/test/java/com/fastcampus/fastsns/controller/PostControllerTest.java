@@ -5,6 +5,8 @@ import com.fastcampus.fastsns.controller.request.PostModifyRequest;
 import com.fastcampus.fastsns.controller.request.UserJoinRequest;
 import com.fastcampus.fastsns.exception.ErrorCode;
 import com.fastcampus.fastsns.exception.FastSnsApplicationException;
+import com.fastcampus.fastsns.fixture.PostEntityFixture;
+import com.fastcampus.fastsns.model.Post;
 import com.fastcampus.fastsns.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -79,7 +83,10 @@ public class PostControllerTest {
         String title = "title";
         String body = "body";
 
-        mockMvc.perform(post("/api/v1/posts/1")
+        when(postService.modify(eq(title), eq(body), any(), any()))
+                .thenReturn(Post.fromEntity(PostEntityFixture.get("userName", 1, 1)));
+
+        mockMvc.perform(put("/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
                 .andDo(print())
@@ -92,7 +99,7 @@ public class PostControllerTest {
         String title = "title";
         String body = "body";
 
-        mockMvc.perform(post("/api/v1/posts/1")
+        mockMvc.perform(put("/api/v1/posts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
                 .andDo(print())
@@ -108,7 +115,7 @@ public class PostControllerTest {
 
         // TODO
 
-        mockMvc.perform(post("/api/v1/posts/1")
+        mockMvc.perform(put("/api/v1/posts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
                 .andDo(print())
@@ -123,7 +130,7 @@ public class PostControllerTest {
 
         // TODO
         doThrow(new FastSnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).modify(eq(title), eq(body), any(), eq(1));
-        mockMvc.perform(post("/api/v1/posts/1")
+        mockMvc.perform(put("/api/v1/posts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
                 .andDo(print())
