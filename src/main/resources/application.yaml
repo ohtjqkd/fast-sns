@@ -4,10 +4,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        show_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-#        hbm2ddl:
-#          auto: create
 
   datasource:
     url: jdbc:${DATABASE_JURL}

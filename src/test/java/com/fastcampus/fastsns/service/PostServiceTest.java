@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
@@ -112,5 +114,70 @@ public class PostServiceTest {
         //then
         FastSnsApplicationException e = Assertions.assertThrows(FastSnsApplicationException.class, () -> postService.modify(title, body, userName, postId));
         Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
+    }
+    @Test
+    public void 포스트삭제_성공() throws Exception {
+        //given
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntityFixture = PostEntityFixture.get(userName, postId, 1);
+        //when
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(postEntityFixture.getUser()));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntityFixture));
+
+        //then
+        Assertions.assertDoesNotThrow(() -> postService.delete(userName, postId));
+    }
+    @Test
+    public void 포스트삭제_포스트존재x() throws Exception {
+        //given
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntityFixture = PostEntityFixture.get(userName, postId, 1);
+        //when
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(postEntityFixture.getUser()));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.empty());
+
+        //then
+        FastSnsApplicationException e = Assertions.assertThrows(FastSnsApplicationException.class, () -> postService.delete(userName, postId));
+        Assertions.assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
+    }
+
+    @Test
+    public void 포스트삭제_권한x() throws Exception {
+        //given
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntityFixture = PostEntityFixture.get(userName, postId, 2);
+        UserEntity writer = UserEntityFixture.get("userName1", "password", 2);
+        //when
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(writer));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntityFixture));
+
+        //then
+        FastSnsApplicationException e = Assertions.assertThrows(FastSnsApplicationException.class, () -> postService.delete(userName, postId));
+        Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
+    }
+
+    @Test
+    public void 피드목록() {
+
+        Pageable pageable = mock(Pageable.class);
+        when(postEntityRepository.findAll(pageable)).thenReturn(Page.empty());
+
+        Assertions.assertDoesNotThrow(() -> postService.list(pageable));
+    }
+
+    @Test
+    public void 내피드목록() {
+        Pageable pageable = mock(Pageable.class);
+        UserEntity user = mock(UserEntity.class);
+        when(userEntityRepository.findByUserName(any())).thenReturn(Optional.of(user));
+        when(postEntityRepository.findAllByUser(user, pageable)).thenReturn(Page.empty());
+
+        Assertions.assertDoesNotThrow(() -> postService.my("", pageable));
     }
 }
