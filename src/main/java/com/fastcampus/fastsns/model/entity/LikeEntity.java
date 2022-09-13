@@ -28,7 +28,7 @@ public class LikeEntity {
     @JoinColumn(name = "post_id")
     private PostEntity post;
 
-    @Column(name = "register_at")
+    @Column(name = "registered_at")
     private Timestamp registerAt;
 
     @Column(name = "updated_at")
@@ -52,5 +52,10 @@ public class LikeEntity {
         entity.setUser(userEntity);
         entity.setPost(postEntity);
         return entity;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

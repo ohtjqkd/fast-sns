@@ -1,8 +1,8 @@
 package com.fastcampus.fastsns.controller;
 
+import com.fastcampus.fastsns.controller.request.PostCommentRequest;
 import com.fastcampus.fastsns.controller.request.PostCreateRequest;
 import com.fastcampus.fastsns.controller.request.PostModifyRequest;
-import com.fastcampus.fastsns.controller.request.UserJoinRequest;
 import com.fastcampus.fastsns.exception.ErrorCode;
 import com.fastcampus.fastsns.exception.FastSnsApplicationException;
 import com.fastcampus.fastsns.fixture.PostEntityFixture;
@@ -218,7 +218,7 @@ public class PostControllerTest {
     }
     @Test
     @WithMockUser
-    public void 좋아요크릭() throws Exception {
+    public void 좋아요클릭() throws Exception {
         mockMvc.perform(post("/api/v1/posts/1/likes")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -226,7 +226,7 @@ public class PostControllerTest {
     }
     @Test
     @WithMockUser
-    public void 좋아요크릭_게시물x() throws Exception {
+    public void 좋아요클릭_게시물x() throws Exception {
         doThrow(new FastSnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).like(any(), any());
         mockMvc.perform(post("/api/v1/posts/1/likes")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -239,6 +239,36 @@ public class PostControllerTest {
     public void 좋아요클릭_로그인x() throws Exception {
         mockMvc.perform(post("/api/v1/posts/1/likes")
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    public void 댓글작성() throws Exception {
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment"))))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+    @Test
+    @WithMockUser
+    public void 댓글작성_게시물x() throws Exception {
+        doThrow(new FastSnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).comment(any(), any(), any());
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment"))))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void 댓글작성_로그인x() throws Exception {
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment"))))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }

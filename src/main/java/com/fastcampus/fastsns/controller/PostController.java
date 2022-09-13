@@ -1,9 +1,12 @@
 package com.fastcampus.fastsns.controller;
 
+import com.fastcampus.fastsns.controller.request.PostCommentRequest;
 import com.fastcampus.fastsns.controller.request.PostCreateRequest;
 import com.fastcampus.fastsns.controller.request.PostModifyRequest;
+import com.fastcampus.fastsns.controller.response.CommentResponse;
 import com.fastcampus.fastsns.controller.response.PostResponse;
 import com.fastcampus.fastsns.controller.response.Response;
+import com.fastcampus.fastsns.model.Comment;
 import com.fastcampus.fastsns.model.Post;
 import com.fastcampus.fastsns.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -54,8 +57,19 @@ public class PostController {
         return Response.success();
     }
 
-    @GetMapping("/{postId}")
+    @GetMapping("/{postId}/likes")
     public Response<Integer> likeCount(@PathVariable Integer postId) {
         return Response.success(postService.likeCount(postId));
+    }
+
+    @PostMapping("/{postId}/comments")
+    public Response<Void> comment(@PathVariable Integer postId, @RequestBody PostCommentRequest commentRequest, Authentication authentication) {
+        postService.comment(postId, authentication.getName(), commentRequest.getComment());
+        return Response.success();
+    }
+
+    @GetMapping("/{postId}/comments")
+    public Response<Page<CommentResponse>> getComments(@PathVariable Integer postId, Pageable pageable, Authentication authentication) {
+        return Response.success(postService.getComments(postId, pageable).map(CommentResponse::fromComment));
     }
 }

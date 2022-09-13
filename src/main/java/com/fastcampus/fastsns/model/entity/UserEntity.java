@@ -32,7 +32,7 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;
 
-    @Column(name = "register_at")
+    @Column(name = "registerd_at")
     private Timestamp registerAt;
 
     @Column(name = "updated_at")

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -25,7 +26,7 @@ public class UserService {
     @Value("${jwt.token.expired-time-ms}")
     private String expiredTimeMs;
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public User join(String userName, String password) {
         userEntityRepository.findByUserName(userName).ifPresent(it -> {
             throw new FastSnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, String.format("%s is duplicated", userName));
