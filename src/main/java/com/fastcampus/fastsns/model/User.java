@@ -28,9 +28,9 @@ public class User implements UserDetails {
                 entity.getUserName(),
                 entity.getPassword(),
                 entity.getRole(),
-                entity.getRegisterAt(),
+                entity.getRegisteredAt(),
                 entity.getUpdatedAt(),
-                entity.getDeleteAt()
+                entity.getDeletedAt()
         );
     }
 

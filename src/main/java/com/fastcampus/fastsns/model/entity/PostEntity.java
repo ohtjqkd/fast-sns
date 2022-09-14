@@ -1,6 +1,5 @@
 package com.fastcampus.fastsns.model.entity;
 
-import com.fastcampus.fastsns.model.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
@@ -32,17 +31,17 @@ public class PostEntity {
     private UserEntity user;
 
     @Column(name = "registered_at")
-    private Timestamp registerAt;
+    private Timestamp registeredAt;
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
     @Column(name = "deleted_at")
-    private Timestamp deleteAt;
+    private Timestamp deletedAt;
 
     @PrePersist
     void registerAt() {
-        this.registerAt = Timestamp.from(Instant.now());
+        this.registeredAt = Timestamp.from(Instant.now());
     }
 
     @PreUpdate

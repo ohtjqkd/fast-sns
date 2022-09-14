@@ -1,14 +1,15 @@
 package com.fastcampus.fastsns.repository;
 
-import com.fastcampus.fastsns.model.Post;
-import com.fastcampus.fastsns.model.entity.PostEntity;
+import com.fastcampus.fastsns.model.entity.AlarmEntity;
 import com.fastcampus.fastsns.model.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface PostEntityRepository extends JpaRepository<PostEntity, Integer> {
-    Page<PostEntity> findAllByUser(UserEntity userEntity, Pageable pageable);
+public interface AlarmEntityRepository extends JpaRepository<AlarmEntity, Integer> {
+    Page<AlarmEntity> findAllByUser(UserEntity userEntity, Pageable pageable);
 }

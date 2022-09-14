@@ -29,17 +29,17 @@ public class LikeEntity {
     private PostEntity post;
 
     @Column(name = "registered_at")
-    private Timestamp registerAt;
+    private Timestamp registeredAt;
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
     @Column(name = "deleted_at")
-    private Timestamp deleteAt;
+    private Timestamp deletedAt;
 
     @PrePersist
     void registerAt() {
-        this.registerAt = Timestamp.from(Instant.now());
+        this.registeredAt = Timestamp.from(Instant.now());
     }
 
     @PreUpdate

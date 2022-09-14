@@ -2,16 +2,12 @@ package com.fastcampus.fastsns.service;
 
 import com.fastcampus.fastsns.exception.ErrorCode;
 import com.fastcampus.fastsns.exception.FastSnsApplicationException;
+import com.fastcampus.fastsns.model.AlarmArgs;
+import com.fastcampus.fastsns.model.AlarmType;
 import com.fastcampus.fastsns.model.Comment;
 import com.fastcampus.fastsns.model.Post;
-import com.fastcampus.fastsns.model.entity.CommentEntity;
-import com.fastcampus.fastsns.model.entity.LikeEntity;
-import com.fastcampus.fastsns.model.entity.PostEntity;
-import com.fastcampus.fastsns.model.entity.UserEntity;
-import com.fastcampus.fastsns.repository.CommentEntityRepository;
-import com.fastcampus.fastsns.repository.LikeEntityRepository;
-import com.fastcampus.fastsns.repository.PostEntityRepository;
-import com.fastcampus.fastsns.repository.UserEntityRepository;
+import com.fastcampus.fastsns.model.entity.*;
+import com.fastcampus.fastsns.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +21,8 @@ public class PostService {
     private final PostEntityRepository postEntityRepository;
     private final UserEntityRepository userEntityRepository;
     private final LikeEntityRepository likeEntityRepository;
-
     private final CommentEntityRepository commentEntityRepository;
+    private final AlarmEntityRepository alarmEntityRepository;
 
     @Transactional
     public void create(String title, String body, String userName) {
@@ -64,7 +60,7 @@ public class PostService {
 
     public Page<Post> my(String userName, Pageable pageable) {
         UserEntity userEntity = getUserEntityOrException(userName);
-        return postEntityRepository.findAllByUser(userEntity, pageable);
+        return postEntityRepository.findAllByUser(userEntity, pageable).map(Post::fromEntity);
     }
 
     @Transactional
@@ -76,6 +72,7 @@ public class PostService {
                     throw new FastSnsApplicationException(ErrorCode.ALREADY_LIKE, String.format("userName %s already like post %s", userName, postId));
                 });
         likeEntityRepository.save(LikeEntity.of(userEntity, postEntity));
+        alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
     }
 
     public Integer likeCount(Integer postId) {
@@ -89,6 +86,11 @@ public class PostService {
         UserEntity userEntity = getUserEntityOrException(userName);
 
         commentEntityRepository.save(CommentEntity.of(userEntity, postEntity, comment));
+        alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+    }
+
+    public Page<Comment> getComments(Integer postId, Pageable pageable) {
+        return commentEntityRepository.findAllByPost(getPostEntityOrException(postId), pageable).map(Comment::fromEntity);
     }
 
     public PostEntity getPostEntityOrException(Integer postId) {
@@ -106,7 +108,5 @@ public class PostService {
             throw new FastSnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userEntity.getUserName(), postEntity.getId()));
     }
 
-    public Page<Comment> getComments(Integer postId, Pageable pageable) {
-        return commentEntityRepository.findAllByPost(getPostEntityOrException(postId), pageable).map(Comment::fromEntity);
-    }
+
 }

@@ -2,16 +2,17 @@ package com.fastcampus.fastsns.controller;
 
 import com.fastcampus.fastsns.controller.request.UserJoinRequest;
 import com.fastcampus.fastsns.controller.request.UserLoginRequest;
+import com.fastcampus.fastsns.controller.response.AlarmResponse;
 import com.fastcampus.fastsns.controller.response.Response;
 import com.fastcampus.fastsns.controller.response.UserJoinResponse;
 import com.fastcampus.fastsns.controller.response.UserLoginResponse;
 import com.fastcampus.fastsns.model.User;
 import com.fastcampus.fastsns.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -31,4 +32,10 @@ public class UserController {
         String token = userService.login(request.getName(), request.getPassword());
         return Response.success(new UserLoginResponse(token));
     }
+
+    @GetMapping("/alarms")
+    public Response<Page<AlarmResponse>> alarm(Pageable pageable, Authentication authentication) {
+        return Response.success(userService.alarmList(pageable, authentication.getName()).map(AlarmResponse::fromAlarm));
+    }
+
 }
